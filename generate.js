@@ -1,11 +1,7 @@
-process.argv.forEach(function (val, index, array) {
-  console.log(index + ': ' + val);
-});
-
-process.exit(0);
-
 const $ = require('cheerio');
 const fetch = require('node-fetch');
+const fs = require('fs');
+const path = require('path');
 const { Feed } = require('feed');
 
 const firstPageUrl = 'https://www.head-fi.org/threads/schiit-happened-the-story-of-the-worlds-most-improbable-start-up.701900/';
@@ -55,7 +51,7 @@ function defineNewSchiitFeed() {
   });
 }
 
-async function main() {
+async function getSchiitFeed() {
   const posts = await getAllPosts();
   const schiitFeed = defineNewSchiitFeed();
   posts.forEach(post => {
@@ -68,7 +64,14 @@ async function main() {
       date: post.date,
     });
   });
-  console.log(schiitFeed.rss2());
+  return schiitFeed;
 }
 
-main();
+async function writeAllSchiitFeeds() {
+  const schiitFeed = await getSchiitFeed();
+  fs.writeFileSync(path.join(__dirname, '/build/feed.rss'), schiitFeed.rss2());
+  //fs.writeFileSync(path.join(__dirname, '/build/feed.atom'), schiitFeed.atom1());
+  fs.writeFileSync(path.join(__dirname, '/build/feed.json'), schiitFeed.json1());
+}
+
+writeAllSchiitFeeds();
