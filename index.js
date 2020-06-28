@@ -1,9 +1,16 @@
+process.argv.forEach(function (val, index, array) {
+  console.log(index + ': ' + val);
+});
+
+process.exit(0);
+
 const $ = require('cheerio');
 const fetch = require('node-fetch');
+const { Feed } = require('feed');
 
 const firstPageUrl = 'https://www.head-fi.org/threads/schiit-happened-the-story-of-the-worlds-most-improbable-start-up.701900/';
 const firstPostNumber = 10194517;
-const firstPostTitle = 'Hey all';
+const firstPostTitle = 'Introduction';
 
 const postSelector = postId => `div[data-lb-id="post-${postId}"]`;
 
@@ -20,7 +27,7 @@ async function getPost(url, postId, title) {
   }
 }
 
-async function main() {
+async function getAllPosts() {
   const firstPost = await getPost(firstPageUrl, firstPostNumber, firstPostTitle);
 
   const links = $(`a[href^="${firstPageUrl}page"]`, firstPost.html)
@@ -33,9 +40,35 @@ async function main() {
     .get();
 
   const otherPosts = await Promise.all(links.map(link => getPost(link.url, link.postId, link.title)));
-  const allPosts = [firstPost].concat(otherPosts);
+  return [firstPost].concat(otherPosts);
+}
 
-  return allPosts;
+function defineNewSchiitFeed() {
+  return new Feed({
+    title: "Schiit Happened: The Story of the World’s Most Improbable Start-Up",
+    language: "en",
+    updated: new Date(2013, 6, 14), // optional, default = today
+    author: {
+      name: "Jason Stoddard",
+      link: "https://www.head-fi.org/members/jason-stoddard.153898/"
+    }
+  });
+}
+
+async function main() {
+  const posts = await getAllPosts();
+  const schiitFeed = defineNewSchiitFeed();
+  posts.forEach(post => {
+    schiitFeed.addItem({
+      title: post.title,
+      id: post.url,
+      link: post.url,
+      content: post.html,
+      author: [schiitFeed.options.author],
+      date: post.date,
+    });
+  });
+  console.log(schiitFeed.rss2());
 }
 
 main();
