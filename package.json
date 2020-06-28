@@ -2,7 +2,7 @@
   "name": "schiit-happened-rss",
   "version": "0.1.0",
   "description": "Schiit happened blog as a RSS feed (generator)",
-  "main": "index.js",
+  "main": "generate.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
