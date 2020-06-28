@@ -105,3 +105,6 @@ dist
 
 # Built files
 build
+
+# MacOS
+.DS_Store

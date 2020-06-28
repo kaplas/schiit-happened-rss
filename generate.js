@@ -8,7 +8,7 @@ const firstPageUrl = 'https://www.head-fi.org/threads/schiit-happened-the-story-
 const firstPostNumber = 10194517;
 const firstPostTitle = 'Introduction';
 
-const postSelector = postId => `div[data-lb-id="post-${postId}"]`;
+const postSelector = postId => `div[data-lb-id="post-${postId}"] article`;
 
 async function getPost(url, postId, title) {
   const res = await fetch(url);
